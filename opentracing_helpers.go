@@ -21,11 +21,12 @@ func TraceHandler(pattern string, handler http.Handler) (string, http.Handler) {
 		carrier := opentracing.HTTPHeadersCarrier(r.Header)
 		parentSpanContext, _ := opentracing.GlobalTracer().Extract(opentracing.HTTPHeaders, carrier)
 
+		spanName := r.Method + " " + pattern
 		var span opentracing.Span
 		if parentSpanContext == nil {
-			span = opentracing.StartSpan(pattern)
+			span = opentracing.StartSpan(spanName)
 		} else {
-			span = opentracing.StartSpan(pattern, opentracing.ChildOf(parentSpanContext))
+			span = opentracing.StartSpan(spanName, opentracing.ChildOf(parentSpanContext))
 		}
 		defer span.Finish()
 		r = r.WithContext(opentracing.ContextWithSpan(r.Context(), span))
