@@ -5,8 +5,15 @@ import (
 	"github.com/opentracing/opentracing-go"
 )
 
-// The Handle function is the primary way to set up your chain of middlewares to be called by rye.
-// It returns a http.HandlerFunc from net/http that can be set as a route in your http server.
+// TraceHandler facilitates tracing of handlers registered with an
+// http.ServeMux.  For example, to trace this code:
+//
+//    http.Handle("/foo", fooHandler)
+//
+// Perform this replacement:
+//
+//    http.Handle(opentracing_helpers.TraceHandler("/foo", fooHandler))
+//
 func TraceHandler(pattern string, handler http.Handler) (string, http.Handler) {
 	return pattern, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Look for the request caller's SpanContext in the headers
